@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('layout/style.ejs') %>
+
+<body>
+  <div class="root">
+    <%- include('layout/header.ejs') %>
+    <div class="main">
+      <div class="container-sm">
+        <div class="shadow-sm rounded-3 border border-1 p-3 mt-3">
+          <form action="<%= isEdit ? "/admin/product/edit" : '/admin/product/post' %>" method="post">
+            <% if (isEdit) { %>
+              <input type="hidden" name="id" value="<%= product.id %>">
+            <% } %>
+            <div class="mb-3">
+              <label class="form-label">Name:</label>
+              <input type="text" class="form-control" name="name" value="<%= isEdit && product ? product.name : '' %>">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Price:</label>
+              <input type="number" class="form-control" name="price"
+                value="<%= isEdit && product ?  product.price : '' %>">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Rating:</label>
+              <input type="text" class="form-control" name="rating"
+                value="<%= isEdit && product ?  product.rating : "" %>">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Img:</label>
+              <input type="text" class="form-control" name="img" value="<%= isEdit && product ?  product.img : "" %>">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Active:</label>
+              <select class="form-select" aria-label="Default select example">
+                <option value="1" <%= isEdit && product  &&  product.active === 1 ? 'selected' : "" %>>Active</option>
+                <option value="0" <%= isEdit && product && product.active === 0 ? 'selected' : "" %>>UnActive</option>
+              </select>
+            </div>
+            <div class="text-center">
+              <button class="btn btn-warning w-100" type="submit">Create</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    <%- include('layout/footer.ejs') %>
+    <%- include('layout/javascript.ejs') %>
+</body>
+
+</html>
