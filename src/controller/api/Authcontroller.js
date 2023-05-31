@@ -1,50 +1,69 @@
-const Product = require('../../model/Product');
+const jwt = require('jsonwebtoken');
 
-const makeToken = (userID) => {
-  console.log(userID);
+const User = require('../../model/User');
+const AppError = require('../../utils/appError');
+const catchHandler = require('../../utils/catchHandler');
+
+// const makeToken = (userID) => {
+//   console.log(userID);
+// }
+
+exports.register = async (req, res, next) => {
+  const newProduct = await User.create(req.body);
+
+  if (!newProduct) {
+    next(new AppError('Register error', 401));
+  }
+
+  res.status(201).json({
+    status: 'success',
+    data: { newProduct }
+  });
 }
 
-class AuthController {
 
-  async register(req, res) {
-    try {
-      const products = await Product.find({ active: true });
-      res.status(200).json({
-        status: 'success',
-        length: products.length,
-        data: { products }
-      });
-    } catch (error) {
-      res.status(500).json({ error: error.message });
-    }
+exports.getUser = catchHandler( async (req, res, next) =>{
+
+  const user = await User.findById(req.params.id).populate("role_id");
+
+  if (!user || user === null) {
+    return next(new AppError('Register error', 401));
   }
 
-  async login({ body }, res) {
-    try {
-      const product = await new Product(body).save();
-      res.status(201).json({
-        status: 'Create success !',
-        data: { product }
-      });
-    } catch (error) {
-      res.status(500).json({
-        status: 'Error processing request',
-        error: error.message
-      });
-    }
-  }
+  const token = await jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+    expiresIn: process.env.JWT_EXPIRES_IN
+  })
 
-  async checkLogin(req, res, next) {
-    // 1. Getting token and check of it's there
-    const userID = 10
-    makeToken(userID)
-    // 2. Verify token  
+  res.status(200).json({
+    status: 'success',
+    token,
+    data: { user }
+  });
+})
 
-    // 3. Check if user still exists
-
-    // 4. Check if user changed password after the token was issued
-    next()
+exports.login = async ({ body }, res) => {
+  try {
+    const product = await new User(body).save();
+    res.status(201).json({
+      status: 'Create success !',
+      data: { product }
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: 'Error processing request',
+      error: error.message
+    });
   }
 }
 
-module.exports = new AuthController()
+// const checkLogin = (req, res, next) => {
+//   // 1. Getting token and check of it's there
+//   const userID = 10
+//   makeToken(userID)
+//   // 2. Verify token
+
+//   // 3. Check if user still exists
+
+//   // 4. Check if user changed password after the token was issued
+//   next()
+// }

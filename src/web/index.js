@@ -1,3 +1,4 @@
+const auth = require('./auth')
 const admin = require('./admin')
 const products = require('./product')
 const AppError = require('../utils/appError')
@@ -7,6 +8,7 @@ const apiRouter = (app) => {
   // app.use('/api/post', post)
 
   app.use('/api/products', products)
+  app.use('/api/users', auth)
   app.use('/admin', admin)
 
   app.all('*', (req, res, next) => {

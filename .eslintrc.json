@@ -10,8 +10,10 @@
   "rules": {
     "no-console": "off",
     "func-names": "off",
-    "class-methods-use-this": "off",
+    "no-return-value": "off",
     "object-shorthand": "off",
+    "no-underscore-dangle": "off",
+    "class-methods-use-this": "off",
     "no-unused-vars": [
       "error",
       {

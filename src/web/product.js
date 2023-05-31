@@ -1,14 +1,16 @@
 const express = require('express')
 
 const route = express.Router()
-const catchHandler = require('../utils/catchHandler')
 const ProductController = require('../controller/api/ProductController')
 
 // GET request to /api/products
-route.get('/', catchHandler(ProductController.products))
+route.get('/', ProductController.products)
 
 // POST request to /api/products
-route.post('/', catchHandler(ProductController.create.bind(ProductController)))
+route.post('/', ProductController.create)
+
+// GET request to /api/products/:id
+route.get('/:id', ProductController.getId)
 
 // PUT request to /api/products/:id
 // route.put('/:id', ProductController.index)

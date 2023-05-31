@@ -3,7 +3,7 @@ class AppError extends Error {
     super(message)
     this.isOperational = true
     this.statuscode = statuscode
-    this.status = `${statuscode}`.startsWith('4') ? 'fail' : 'error'
+    this.status = `${statuscode}`.startsWith('4') ? 'Fail' : 'Error'
     Error.captureStackTrace(this, this.constructor)
   }
 }
