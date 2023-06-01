@@ -1,69 +1,99 @@
-const jwt = require('jsonwebtoken');
+const jwt = require("jsonwebtoken");
+const { promisify } = require("util");
 
-const User = require('../../model/User');
-const AppError = require('../../utils/appError');
-const catchHandler = require('../../utils/catchHandler');
+const User = require("../../model/User");
+const AppError = require("../../utils/appError");
+const catchHandler = require("../../utils/catchHandler");
 
-// const makeToken = (userID) => {
-//   console.log(userID);
-// }
+const makeToken = (userId) =>
+  jwt.sign({ id: userId }, process.env.JWT_SECRET, {
+    expiresIn: process.env.JWT_EXPIRES_IN,
+  });
 
 exports.register = async (req, res, next) => {
   const newProduct = await User.create(req.body);
 
   if (!newProduct) {
-    next(new AppError('Register error', 401));
+    next(new AppError("Register error", 401));
   }
 
   res.status(201).json({
-    status: 'success',
-    data: { newProduct }
+    status: "success",
+    data: { newProduct },
   });
-}
+};
 
-
-exports.getUser = catchHandler( async (req, res, next) =>{
-
+exports.getUser = catchHandler(async (req, res, next) => {
   const user = await User.findById(req.params.id).populate("role_id");
 
   if (!user || user === null) {
-    return next(new AppError('Register error', 401));
+    return next(new AppError("Register error", 401));
   }
-
-  const token = await jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-    expiresIn: process.env.JWT_EXPIRES_IN
-  })
 
   res.status(200).json({
-    status: 'success',
-    token,
-    data: { user }
+    status: "success",
+    data: { user },
   });
-})
+});
 
-exports.login = async ({ body }, res) => {
-  try {
-    const product = await new User(body).save();
-    res.status(201).json({
-      status: 'Create success !',
-      data: { product }
-    });
-  } catch (error) {
-    res.status(500).json({
-      status: 'Error processing request',
-      error: error.message
-    });
+exports.login = catchHandler(async (req, res, next) => {
+  const { email, password } = req.body;
+
+  if (!email || !password) {
+    return next(
+      new AppError("Please provide email address and password.", 400)
+    );
   }
-}
 
-// const checkLogin = (req, res, next) => {
-//   // 1. Getting token and check of it's there
-//   const userID = 10
-//   makeToken(userID)
-//   // 2. Verify token
+  const user = await User.findOne({ email }).select("+password");
 
-//   // 3. Check if user still exists
+  if (!user || !(await user.CorrectPassword(password, user.password))) {
+    return next(new AppError("Incorrect email address or password.", 400));
+  }
 
-//   // 4. Check if user changed password after the token was issued
-//   next()
-// }
+  user.password = undefined;
+  const token = makeToken(user._id);
+
+  res.status(200).json({
+    status: "success",
+    token,
+    data: { user },
+  });
+});
+
+exports.checkUserIsLogin = catchHandler(async (req, res, next) => {
+  // 1. Getting token and check of it's there
+  let token;
+  if (
+    req.headers.authorization &&
+    req.headers.authorization.startsWith("Bearer ")
+  ) {
+    token = req.headers.authorization.split(" ")[1];
+  }
+
+  if (!token) {
+    return next(
+      new AppError("You are not logged in, please login to  get access.", 401)
+    );
+  }
+  // 2. Verify token
+  const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
+
+  // 3. Check if user still exists
+  const user = await User.findById(decoded.id);
+  if (!user) {
+    return next(
+      new AppError("You are not logged in, please login to  get access.", 401)
+    );
+  }
+
+  // 4. Check if user changed password after the token was issued
+  if (user.checkTimeChangePassword(decoded.iat)) {
+    return next(
+      new AppError("User recently changed password!, please log in again.", 401)
+    );
+  }
+
+  res.user = user;
+  next();
+});

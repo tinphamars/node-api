@@ -10,8 +10,10 @@
   "rules": {
     "no-console": "off",
     "func-names": "off",
+    "no-return-await": "off",
     "no-return-value": "off",
     "object-shorthand": "off",
+    "consistent-return": "off",
     "no-underscore-dangle": "off",
     "class-methods-use-this": "off",
     "no-unused-vars": [
@@ -19,7 +21,16 @@
       {
         "argsIgnorePattern": "res|req|next|val"
       }
-    ]
+    ],
+    "rules": {
+      "prefer-destructuring": [
+        "error",
+        {
+          "object": true,
+          "array": false
+        }
+      ]
+    }
   }
 }
 // npm i eslint prettier eslint-config-prettier eslint-plugin-prettier eslint-config-airbnb eslint-plugin-node eslint-plugin-import eslint-plugin-jsx-a11y eslint-plugin-react --save-dev

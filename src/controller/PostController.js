@@ -1,9 +1,7 @@
 class PostController {
-
   index(req, res) {
-    res.send('how to install a post')
+    res.send("how to install a post");
   }
-
 }
 
-module.exports = new PostController()
+module.exports = new PostController();

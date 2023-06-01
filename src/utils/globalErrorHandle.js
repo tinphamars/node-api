@@ -1,43 +1,43 @@
 const AppError = require("./appError");
 
 const handleErrorNotHasId = (error) => {
-  const message = `IsValid ${error.message} : ${error.value}`;
-  new AppError(message, 400);
-}
+  const message = `Invalid ${error.path} : ${error.value}`;
+  return new AppError(message, 400);
+};
 
 const sendErrorDev = (err, res) => {
   res.status(err.statusCode || 500).json({
-    status: err.status || 'Error',
+    status: err.status || "Error",
     message: err.message,
     error: err,
-    tack: err.tack
-  })
-}
+    tack: err.tack,
+  });
+};
 
 const sendErrorPro = (err, res) => {
-  console.log('err', err.name)
   if (err.isOperational) {
     res.status(err.statusCode || 500).json({
-      status: err.status || 'error',
+      status: err.status || "error",
       message: err.message,
-    })
+    });
   } else {
     res.status(500).json({
-      status: 'error',
-      message: 'Some thing went wrong!',
-    })
+      status: "error",
+      message: "Some thing went wrong!",
+    });
   }
-}
+};
 
 module.exports = (err, req, res, next) => {
   if (process.env.NODE_ENV === "production") {
-    let error = err instanceof Error ? { ...err } : { message: err }
-    if (err.name === 'CastError') {
-      (error) => handleErrorNotHasId(error)
+    let newError;
+    if (err.name === "CastError") {
+      newError = handleErrorNotHasId(err);
+      sendErrorPro(newError, res);
+    } else {
+      sendErrorPro(err, res);
     }
-
-    sendErrorPro(err, res)
   } else if (process.env.NODE_ENV === "development") {
-    sendErrorDev(err, res)
+    sendErrorDev(err, res);
   }
-}
+};

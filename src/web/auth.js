@@ -1,16 +1,16 @@
-const express = require('express')
+const express = require("express");
 
-const route = express.Router()
-const AuthController = require('../controller/api/AuthController')
+const route = express.Router();
+const AuthController = require("../controller/api/AuthController");
 
 // GET request to /api/products
-route.post('/', AuthController.register)
+route.post("/", AuthController.register);
 
 // POST request to /api/products
-route.post('/', AuthController.login)
+route.post("/login", AuthController.login);
 
 // GET request to /api/products/:id
-route.get('/:id', AuthController.getUser)
+route.get("/:id", AuthController.checkUserIsLogin, AuthController.getUser);
 
 // PUT request to /api/products:id
 // route.put('/:id', PostController.index)
@@ -18,4 +18,4 @@ route.get('/:id', AuthController.getUser)
 // DELETE request to /api/products:id
 // route.delete('/:id', PostController.index)
 
-module.exports = route
+module.exports = route;
