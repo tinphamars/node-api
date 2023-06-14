@@ -1,3 +1,4 @@
+const dayjs = require("dayjs");
 const jwt = require("jsonwebtoken");
 const { promisify } = require("util");
 
@@ -54,6 +55,12 @@ exports.login = catchHandler(async (req, res, next) => {
   user.password = undefined;
   const token = makeToken(user._id);
 
+  res.cookie("authorization", "Bearer " + token, {
+    secure: false,
+    httpOnly: true,
+    expires: dayjs().add(7, "days").toDate(),
+  });
+
   res.status(200).json({
     status: "success",
     token,
@@ -64,20 +71,32 @@ exports.login = catchHandler(async (req, res, next) => {
 exports.checkUserIsLogin = catchHandler(async (req, res, next) => {
   // 1. Getting token and check of it's there
   let token;
+
+  // Get token from cookie
   if (
-    req.headers.authorization &&
-    req.headers.authorization.startsWith("Bearer ")
+    req.cookies.authorization &&
+    req.cookies.authorization.startsWith("Bearer ")
   ) {
-    token = req.headers.authorization.split(" ")[1];
+    token = req.cookies.authorization.split(" ")[1];
   }
+
+  // Get token in headers
+  // if (
+  //   req.headers.authorization &&
+  //   req.headers.authorization.startsWith("Bearer ")
+  // ) {
+  //   token = req.headers.authorization.split(" ")[1];
+  // }
 
   if (!token) {
     return next(
       new AppError("You are not logged in, please login to  get access.", 401)
     );
   }
+
   // 2. Verify token
   const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
+  console.log(decoded);
 
   // 3. Check if user still exists
   const user = await User.findById(decoded.id);
@@ -88,12 +107,21 @@ exports.checkUserIsLogin = catchHandler(async (req, res, next) => {
   }
 
   // 4. Check if user changed password after the token was issued
-  if (user.checkTimeChangePassword(decoded.iat)) {
-    return next(
-      new AppError("User recently changed password!, please log in again.", 401)
-    );
-  }
+  // if (user.checkTimeChangePassword(decoded.iat)) {
+  //   return next(
+  //     new AppError("User recently changed password!, please log in again.", 401)
+  //   );
+  // }
 
   res.user = user;
   next();
+});
+
+exports.getUserIsActive = catchHandler(async (req, res, next) => {
+  const users = await User.find({ active: 1 }).populate("role_id");
+  
+  res.status(200).json({
+    status: "success",
+    data: users,
+  });
 });
