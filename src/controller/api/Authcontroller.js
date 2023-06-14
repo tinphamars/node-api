@@ -96,7 +96,6 @@ exports.checkUserIsLogin = catchHandler(async (req, res, next) => {
 
   // 2. Verify token
   const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
-  console.log(decoded);
 
   // 3. Check if user still exists
   const user = await User.findById(decoded.id);
@@ -119,7 +118,7 @@ exports.checkUserIsLogin = catchHandler(async (req, res, next) => {
 
 exports.getUserIsActive = catchHandler(async (req, res, next) => {
   const users = await User.find({ active: 1 }).populate("role_id");
-  
+
   res.status(200).json({
     status: "success",
     data: users,
