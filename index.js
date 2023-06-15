@@ -80,7 +80,7 @@ io.on("connection", (socket) => {
   const cookie = socket.request.headers.cookie;
 
   socket.on("message", (message) => {
-    message.value && io.emit("message", message.value);
+    message.value && io.emit("message", message);
   });
 
   socket.on("disconnect", () => {
