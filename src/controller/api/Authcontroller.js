@@ -5,6 +5,8 @@ const { promisify } = require("util");
 const User = require("../../model/User");
 const AppError = require("../../utils/appError");
 const catchHandler = require("../../utils/catchHandler");
+const UserConversation = require("../../model/UserConversation");
+const Conversation = require("../../model/Conversation");
 
 const makeToken = (userId) =>
   jwt.sign({ id: userId }, process.env.JWT_SECRET, {
@@ -112,7 +114,7 @@ exports.checkUserIsLogin = catchHandler(async (req, res, next) => {
   //   );
   // }
 
-  res.user = user;
+  req.user = user;
   next();
 });
 
@@ -122,5 +124,46 @@ exports.getUserIsActive = catchHandler(async (req, res, next) => {
   res.status(200).json({
     status: "success",
     data: users,
+  });
+});
+
+exports.friend = catchHandler(async (req, res, next) => {
+  // 01 Check user is exit
+  const friend = await User.findOne({
+    email: req.body.friendEmail,
+  });
+
+  // Made a room for two friends
+  const room = await Conversation.create({
+    name: req.user.name + "_" + friend.name,
+  });
+
+  // Made relationship for two friends to rooms
+  const userRoom = await UserConversation.create({
+    conversation_id: room.id,
+    user_id: req.user.id,
+  });
+  const userRoom2 = await UserConversation.create({
+    conversation_id: room.id,
+    user_id: friend.id,
+  });
+
+  res.status(201).json({
+    status: "success",
+    data: [userRoom, userRoom2],
+  });
+});
+
+exports.room = catchHandler(async (req, res, next) => {
+  // 01 Check user is exit
+  const rooms = await UserConversation.find({
+    user_id: req.user._id,
+  }).populate("conversation_id");
+
+  console.log(rooms);
+
+  res.status(201).json({
+    status: "success",
+    data: rooms,
   });
 });

@@ -70,6 +70,16 @@ const io = socketIO(server, {
   },
 });
 
+function getCookies(string) {
+  const array = string.split("; ");
+  array.forEach((item) => {
+    if(item.includes("authorization")) {
+      return  item.split(" ")[1]
+    }
+  });
+  return null;
+}
+
 io.on("connection", (socket) => {
   socket.on("typing", (type) => {
     console.log(" b client is typing " + type);
@@ -78,9 +88,31 @@ io.on("connection", (socket) => {
   // get cookies from client
   // check login here
   const cookie = socket.request.headers.cookie;
+  console.log("cookie: ", getCookies(cookie));
+  // socket.on("message", (message) => {
+  //   message.value && io.emit("message", message);
+  // });
 
-  socket.on("message", (message) => {
-    message.value && io.emit("message", message);
+  // Handle joining a room
+  socket.on("joinRoom", (conversationId) => {
+    // const room = getRoomByConversationId(conversationId);
+    socket.join(conversationId);
+    console.log(`User joined room: ${conversationId}`);
+  });
+
+  // Handle leaving a room
+  socket.on("leaveRoom", (conversationId) => {
+    const room = getRoomByConversationId(conversationId);
+    socket.leave(room);
+    console.log(`User left room: ${room}`);
+  });
+
+  // Handle chat messages
+  socket.on("message", (data) => {
+    const { roomId, value, userId } = data;
+    console.log(data);
+    // const room = getRoomByConversationId(conversationId);
+    io.to(roomId).emit("message", { userId, value });
   });
 
   socket.on("disconnect", () => {
@@ -88,6 +120,11 @@ io.on("connection", (socket) => {
   });
 });
 // end config socket io
+
+// Function to get room identifier by conversationId
+function getRoomByConversationId(conversationId) {
+  return `room_${conversationId}`;
+}
 
 server.listen(port, () => {
   console.log("Hello world! " + port);
