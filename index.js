@@ -10,6 +10,11 @@ const apiRouter = require("./src/web/index");
 const morgan = require("morgan");
 const helmet = require("helmet");
 const cookieParser = require("cookie-parser");
+const cookie = require("cookie");
+const { promisify } = require("util");
+const User = require("./src/model/User");
+const jwt = require("jsonwebtoken");
+const UserConversation = require("./src/model/UserConversation");
 
 // body parser
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -44,7 +49,8 @@ app.use(
 
 app.use(morgan("dev"));
 app.use(helmet());
-// connect to mongodb
+
+// CONNECT to mongodb
 mongoose
   .connect("mongodb://127.0.0.1:27017/admin", {
     useNewUrlParser: true,
@@ -53,15 +59,14 @@ mongoose
   .then(() => console.log("MongoDB connected!"))
   .catch((err) => console.log(err));
 
-// set router
+// SET router
 apiRouter(app);
 
-// config dotenv.env
+// CONFIG dotenv.env
 dotenv.config();
-
 const port = process.env.APP_PORT || 7171;
 
-// make socket io
+// MADE socket io
 const server = http.createServer(app);
 const io = socketIO(server, {
   cors: {
@@ -70,32 +75,41 @@ const io = socketIO(server, {
   },
 });
 
-function getCookies(string) {
-  const array = string.split("; ");
-  array.forEach((item) => {
-    if(item.includes("authorization")) {
-      return  item.split(" ")[1]
-    }
-  });
-  return null;
-}
+io.on("connection", async (socket) => {
+  let token = "";
+  const cookieCheck = await socket.request.headers.cookie;
+  const Check = cookie.parse(cookieCheck);
+  // Get token from cookie
+  if (Check && Check.authorization.startsWith("Bearer ")) {
+    token = Check.authorization.split(" ")[1];
+  }
+  // 2. Verify token
+  const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
 
-io.on("connection", (socket) => {
+  // 3. Check if user still exists
+  const user = await User.findById(decoded.id);
+  console.log(user.id);
+
+  const conversation = await UserConversation.find({
+    user_id: user._id,
+  }).populate("conversation_id");
+
+  const rooms = conversation.map(
+    (userConversation) => userConversation.conversation_id
+  );
+
+  // rooms.map((room) => socket.join(room.id));
+
+  socket.join("648d3a23eb33149a6fb66dac")
   socket.on("typing", (type) => {
     console.log(" b client is typing " + type);
   });
 
-  // get cookies from client
-  // check login here
-  const cookie = socket.request.headers.cookie;
-  console.log("cookie: ", getCookies(cookie));
-  // socket.on("message", (message) => {
-  //   message.value && io.emit("message", message);
-  // });
-
-  // Handle joining a room
+  // HANDLE joining a room
   socket.on("joinRoom", (conversationId) => {
     // const room = getRoomByConversationId(conversationId);
+    console.log("join room " + conversationId);
+
     socket.join(conversationId);
     console.log(`User joined room: ${conversationId}`);
   });
@@ -111,7 +125,6 @@ io.on("connection", (socket) => {
   socket.on("message", (data) => {
     const { roomId, value, userId } = data;
     console.log(data);
-    // const room = getRoomByConversationId(conversationId);
     io.to(roomId).emit("message", { userId, value });
   });
 
@@ -119,7 +132,7 @@ io.on("connection", (socket) => {
     console.log("A client disconnected ");
   });
 });
-// end config socket io
+// END config socket io
 
 // Function to get room identifier by conversationId
 function getRoomByConversationId(conversationId) {
