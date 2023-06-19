@@ -88,44 +88,19 @@ io.on("connection", async (socket) => {
 
   // 3. Check if user still exists
   const user = await User.findById(decoded.id);
-  console.log(user.id);
 
-  const conversation = await UserConversation.find({
-    user_id: user._id,
-  }).populate("conversation_id");
+  // JOIN to all room user has
+  await joinToAllRooms(user, socket);
 
-  const rooms = conversation.map(
-    (userConversation) => userConversation.conversation_id
-  );
-
-  // rooms.map((room) => socket.join(room.id));
-
-  socket.join("648d3a23eb33149a6fb66dac")
   socket.on("typing", (type) => {
     console.log(" b client is typing " + type);
   });
 
-  // HANDLE joining a room
-  socket.on("joinRoom", (conversationId) => {
-    // const room = getRoomByConversationId(conversationId);
-    console.log("join room " + conversationId);
-
-    socket.join(conversationId);
-    console.log(`User joined room: ${conversationId}`);
-  });
-
-  // Handle leaving a room
-  socket.on("leaveRoom", (conversationId) => {
-    const room = getRoomByConversationId(conversationId);
-    socket.leave(room);
-    console.log(`User left room: ${room}`);
-  });
-
   // Handle chat messages
   socket.on("message", (data) => {
-    const { roomId, value, userId } = data;
-    console.log(data);
-    io.to(roomId).emit("message", { userId, value });
+    const { roomId } = data;
+    console.log("room Id: " + roomId);
+    io.to(roomId).emit("messageFromSever", data);
   });
 
   socket.on("disconnect", () => {
@@ -134,10 +109,25 @@ io.on("connection", async (socket) => {
 });
 // END config socket io
 
-// Function to get room identifier by conversationId
-function getRoomByConversationId(conversationId) {
-  return `room_${conversationId}`;
-}
+const joinToAllRooms = async (user, socket) => {
+  try {
+    const conversations = await UserConversation.find({
+      user_id: user.id,
+    }).populate("conversation_id");
+
+    const rooms = conversations.map(
+      (userConversation) => userConversation.conversation_id
+    );
+
+    rooms.forEach((room) => {
+      socket.join(room.id);
+    });
+
+    console.log("Rooms joined successfully");
+  } catch (error) {
+    console.error("Error joining rooms:", error);
+  }
+};
 
 server.listen(port, () => {
   console.log("Hello world! " + port);
