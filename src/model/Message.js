@@ -8,7 +8,7 @@ const MessageSchema = mongoose.Schema(
     content: {
       type: String,
       required: [true, "The field name is required"],
-      minlength: 3,
+      minlength: 1,
     },
     user_id: {
       type: mongoose.Types.ObjectId,
@@ -17,6 +17,10 @@ const MessageSchema = mongoose.Schema(
     conversation_id: {
       type: mongoose.Types.ObjectId,
       ref: Conversation,
+    },
+    is_remove: {
+      type: Number,
+      default: 0,
     },
   },
   { timestamps: true }

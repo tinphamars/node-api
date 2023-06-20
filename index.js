@@ -15,6 +15,7 @@ const { promisify } = require("util");
 const User = require("./src/model/User");
 const jwt = require("jsonwebtoken");
 const UserConversation = require("./src/model/UserConversation");
+const Message = require("./src/model/Message");
 
 // body parser
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -97,12 +98,18 @@ io.on("connection", async (socket) => {
   });
 
   // Handle chat messages
-  socket.on("message", (data) => {
-    const { roomId } = data;
-    console.log("room Id: " + roomId);
-    io.to(roomId).emit("messageFromSever", data);
+  socket.on("message", async (data) => {
+    // STORE chat message to mongodb
+    const fromSever = await Message.create({
+      content: data.value,
+      user_id: data.userId,
+      conversation_id: data.roomId,
+    });
+    // EMIT TO client
+    io.to(data.roomId).emit("messageFromSever", fromSever);
   });
 
+  // EVENT client typing messages
   socket.on("disconnect", () => {
     console.log("A client disconnected ");
   });
