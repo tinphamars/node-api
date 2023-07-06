@@ -19,7 +19,9 @@ exports.messageInARoom = catchHandler(async (req, res, next) => {
   // 02. GET all message in the room
   const conversation = await Message.find({
     conversation_id: req.params.id,
-  }).limit(50);
+  })
+    // .limit(100)
+    .sort({ createdAt: 1 });
 
   res.status(200).json({
     status: "success",
