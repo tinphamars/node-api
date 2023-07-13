@@ -18,7 +18,7 @@ exports.create = catchHandler(async (req, res, next) => {
   if (!newProduct) {
     next(new AppError("Create not found", 401));
   }
-
+  
   res.status(201).json({
     status: "success",
     data: { newProduct },

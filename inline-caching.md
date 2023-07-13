@@ -5,5 +5,5 @@ VD:
     return object.x;
   }
   
-  Mỗi khi hàm này được chạy thì javascript engine sẽ tạo ra một hàm ghi nhớ
+  * Mỗi khi hàm này được chạy thì javascript engine sẽ tạo ra một hàm ghi nhớ
   
