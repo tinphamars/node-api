@@ -1,15 +1,14 @@
-Dockerfile
 # Sử dụng image node.js phiên bản 12 làm base image
-FROM node:alpine
- # Tạo thư mục app trong container và đặt làm thư mục làm việc
+FROM node:18
+# Tạo thư mục app trong container và đặt làm thư mục làm việc
 WORKDIR /app
- # Copy package.json và package-lock.json vào thư mục app
+# Copy package.json và package-lock.json vào thư mục app
 COPY package*.json ./
- # Cài đặt các dependencies
+# Cài đặt các dependencies
 RUN npm install
- # Copy tất cả các file trong thư mục hiện tại vào thư mục app trong container
+# Copy tất cả các file trong thư mục hiện tại vào thư mục app trong container
 COPY . .
- # Expose cổng 3000 để truy cập ứng dụng Express.js
-EXPOSE 7171
- # Chạy lệnh khởi động ứng dụng
+# Expose cổng 3000 để truy cập ứng dụng Express.js
+EXPOSE 3000
+# Chạy lệnh khởi động ứng dụng
 CMD ["npm", "start"]

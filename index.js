@@ -65,7 +65,7 @@ apiRouter(app);
 
 // CONFIG dotenv.env
 dotenv.config();
-const port = process.env.APP_PORT || 7171;
+const port = process.env.APP_PORT || 3000;
 
 // MADE socket io
 const server = http.createServer(app);

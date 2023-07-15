@@ -15,9 +15,3 @@ exports.conversation = catchHandler(async (req, res, next) => {
     data: data,
   });
 });
-
-
-- Container
-- Image
-- Volumes
-- Network
