@@ -1,14 +1,25 @@
 # Sử dụng image node.js phiên bản 12 làm base image
-FROM node:18
+# FROM node:18
 # Tạo thư mục app trong container và đặt làm thư mục làm việc
-WORKDIR /app
+# WORKDIR /app
 # Copy package.json và package-lock.json vào thư mục app
-COPY package*.json ./
+# COPY package*.json ./
 # Cài đặt các dependencies
-RUN npm install
+# RUN npm install
 # Copy tất cả các file trong thư mục hiện tại vào thư mục app trong container
-COPY . .
+# COPY . .
 # Expose cổng 3000 để truy cập ứng dụng Express.js
-EXPOSE 3000
+# EXPOSE 3000
 # Chạy lệnh khởi động ứng dụng
-CMD ["npm", "start"]
+# CMD ["npm", "start"]
+
+FROM node:18
+WORKDIR /app
+COPY package*.json ./
+RUN npm install
+COPY . .
+RUN /root/provision.sh
+
+FROM mongo:5.0.12
+EXPOSE 3000
+CMD ["node", "index.js"]
