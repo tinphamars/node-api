@@ -1,0 +1,1 @@
+<=> PROMISIFY: là một phương thức chuyển đổi một hàm trả về giá trị thành một hàm trả về một lời hứa (promise).

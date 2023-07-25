@@ -55,7 +55,7 @@ exports.login = catchHandler(async (req, res, next) => {
   }
 
   user.password = undefined;
-  const token = makeToken(user._id);
+  const token = makeToken(user._id); 
 
   res.cookie("authorization", "Bearer " + token, {
     secure: false,
