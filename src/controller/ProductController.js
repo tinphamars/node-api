@@ -1,13 +1,16 @@
 const Product = require("../model/Product");
+const { Worker } = require("node:worker_threads");
 
 class ProductController {
   async index(req, res) {
     const products = await Product.find({ active: 1 });
-    const now = Date.now();
-    while(Date.now() - now < 30000){
-      // console.log(Date.now())
-    } 
-    console.log("ham find trong product")
+
+    // Here worker threads is working
+    // const worker = new Worker(__dirname + "../../worker/while.js");
+    // worker.on("message", (data) => {
+    //   res.render("product-list", { products });
+    // });
+
     res.render("product-list", { products });
   }
 
