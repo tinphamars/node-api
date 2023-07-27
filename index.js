@@ -12,7 +12,6 @@ const helmet = require("helmet");
 const cookieParser = require("cookie-parser");
 const cookie = require("cookie");
 const os = require("os");
-const cluster = require("cluster");
 
 const { promisify } = require("util");
 const User = require("./src/model/User");
@@ -48,12 +47,12 @@ app.use(
   cors({
     origin: "http://localhost:1010",
     credentials: true,
-  })z``
+  })
 );
 
 app.use(morgan("dev"));
 // app.use(helmet());
-// config helmet allow image
+// config helmet allow for image
 app.use(
   helmet.contentSecurityPolicy({
     useDefaults: true,
@@ -65,7 +64,7 @@ app.use(
 
 // CONNECT to mongodb
 mongoose
-  .connect("mongodb://127.0.0.1:27017/admin", {
+  .connect("mongodb://root:example@localhost:27018/admin", {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   })

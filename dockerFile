@@ -18,8 +18,5 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm install
 COPY . .
-RUN /root/provision.sh
-
-FROM mongo:5.0.12
 EXPOSE 3000
 CMD ["node", "index.js"]
