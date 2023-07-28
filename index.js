@@ -61,15 +61,23 @@ app.use(
     },
   })
 );
-
+console.log("configuration dấdf: =====", process.env.DB_HOSTNAME)  
 // CONNECT to mongodb
 mongoose
-  .connect("mongodb://root:example@localhost:27018/admin", {
+  .connect(`mongodb://${process.env.DB_HOSTNAME}/admin`, {
     useNewUrlParser: true,
-    useUnifiedTopology: true,
+    useUnifiedTopology: true
+    // auth: {
+    //   username: "root",
+    //   password: "123456",
+    // },
   })
-  .then(() => console.log("MongoDB connected!"))
-  .catch((err) => console.log(err));
+  .then(() => {
+    console.log("Connected to MongoDB");
+  })
+  .catch((error) => {
+    console.error("Error connecting to MongoDB:", error);
+  });
 
 // console.log(mongoose.Query.prototype.exec)
 const exec = mongoose.Query.prototype.exec;
@@ -83,6 +91,7 @@ mongoose.Query.prototype.exec = function () {
 
 // SET router
 apiRouter(app);
+// mongosh --host mongo_pham  --port 7017 --db test --username root --password 123456
 
 // CONFIG dotenv.env
 dotenv.config();

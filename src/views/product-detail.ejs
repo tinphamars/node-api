@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('layout/style.ejs') %>
+
+<body>
+  <div class="root">
+    <%- include('layout/header.ejs') %>
+    <div class="main">
+      <div class="container-sm">
+        <div class="row row-cols-2 row-cols-md-4">
+          <% products.forEach(element => { %>
+          <div class="col mb-2">
+            <div class="card rounded-3">
+              <img src="<%= element.img %>" class="card-img-top" alt="<%= element.name %>" height="300px">
+              <div class="card-body">
+                <h5 class="card-title"><%= element.name %></h5>
+              </div>
+              <div class="d-flex justify-content-between align-items-center p-2">
+                <a href="/admin/product/delete/<%= element.id %>">
+                  <button type="button" class="btn btn-outline-danger">Delete</button>
+                </a>
+                <a href="/admin/product/edit/<%= element.id %>">
+                  <button type="button" class="btn btn-outline-warning">Edit</button>
+                </a>
+              </div>
+            </div>
+          </div>
+          <% }) %>
+        </div>
+      </div>
+    </div>
+    <%- include('layout/footer.ejs') %>
+    <%- include('layout/javascript.ejs') %>
+</body>
+
+</html>

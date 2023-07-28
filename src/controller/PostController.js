@@ -1,6 +1,6 @@
 class PostController {
   index(req, res) {
-    res.send("how to install a post");
+    res.send("how to create a post");
   }
 }
 
