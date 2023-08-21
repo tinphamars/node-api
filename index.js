@@ -61,7 +61,7 @@ app.use(
     },
   })
 );
-console.log("configuration dấdf: =====", process.env.DB_HOSTNAME)  
+
 // CONNECT to mongodb
 mongoose
   .connect(`mongodb://${process.env.DB_HOSTNAME}/admin`, {

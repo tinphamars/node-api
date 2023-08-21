@@ -4,10 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "start": "nodemon -L index",
     "build": "tsc",
-    "debug": "ndb index.js"
+    "debug": "ndb index.js",
+    "test": "jest"
   },
   "keywords": [],
   "author": "Master JI",
@@ -26,7 +26,6 @@
     "fs": "^0.0.1-security",
     "helmet": "^7.0.0",
     "http": "^0.0.1-security",
-    "jest": "^29.6.1",
     "jsonwebtoken": "^9.0.0",
     "mongoose": "^7.2.0",
     "mongoose-unique-validator": "^4.0.0",
@@ -50,6 +49,7 @@
     "eslint-plugin-react": "^7.32.2",
     "ndb": "^0.2.4",
     "prettier": "^2.8.8",
+    "jest": "^29.6.2",
     "typescript": "^5.0.4"
   },
   "engines": {
